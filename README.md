@@ -530,7 +530,6 @@ Este projeto foi desenvolvido como trabalho acadêmico de dissertação de mestr
 
 <div align="center">
 
-**André Luiz** — UNESP Ribeirão Preto, 2026  
-*Programa de Pós-Graduação em Física e Computação Científica*
+**André Luiz Magalhães de Oliveira - Físico Médico**
 
 </div>
