@@ -518,5 +518,3 @@ ising-cnn-gradcam/
   year    = {2019}
 }
 ```
-
-**André Luiz Magalhães de Oliveira - Físico Médico**
