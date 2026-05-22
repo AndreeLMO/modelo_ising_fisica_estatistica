@@ -7,7 +7,7 @@
 
 ---
 
-## 📑 Resumo Expandido
+## 📑 Resumo
 
 O estudo das transições de fase e dos fenômenos críticos dentro da física estatística de muitos corpos tradicionalmente requer formulações analíticas complexas e simulações numéricas massivas baseadas no método de Monte Carlo. Observáveis macroscópicos como magnetização, energia interna, calor específico e susceptibilidade magnética são utilizados para mapear os limites de fase. 
 
@@ -17,7 +17,7 @@ A fim de romper com a opacidade metodológica que comumente rotula as redes neur
 
 ---
 
-## 🏛️ 1. Fundamentação Teórica Detalhada
+## 🏛️ 1. Fundamentação Teórica
 
 ### 1.1 O Modelo de Ising Bidimensional (2D)
 O Modelo de Ising 2D serve como o laboratório ideal para testar teorias de transição de fase contínua (segunda ordem). Definido sobre uma rede quadrada ideal de tamanho $L \times L$ com condições de contorno periódicas (geometria toroidal), o modelo atribui a cada sítio $i$ uma variável discreta de spin $s_i \in \{-1, +1\}$. 
@@ -92,13 +92,4 @@ A tabela a seguir detalha o fluxo tensorial ao longo da arquitetura implementada
 | **Dense_2**| Saída (*Logits*) | Mapeamento Linear para as 2 Classes Finais | `(Batch, 2)` |
 
 ---
-
-precision    recall  f1-score   support
-
-    Classe 0       1.00      1.00      1.00       100
-    Classe 1       1.00      1.00      1.00       100
-
-    accuracy                           1.00       200
-   macro avg       1.00      1.00      1.00       200
-weighted avg       1.00      1.00      1.00       200
 
