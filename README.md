@@ -1,135 +1,536 @@
-# Detecção de Transições de Fase no Modelo de Ising 2D via Redes Neurais Convolucionais e Interpretabilidade por Grad-CAM
-
-> **Projeto de Pesquisa Científica / Computação de Alto Desempenho**
-> **Autor:** André Luiz
-> **Área:** Física Estatística Computacional / Deep Learning / Inteligência Artificial Explicável (XAI)
-> **Frameworks Principais:** PyTorch, NumPy, Scikit-Learn, Matplotlib
+# 🧲 Detecção de Transições de Fase no Modelo de Ising 2D com CNN e Grad-CAM
+ 
+> **Autor:** André Luiz Magalhães de Oliveira
 
 ---
 
-## 📑 Resumo
+## 📋 Sumário
 
-O estudo das transições de fase e dos fenômenos críticos dentro da física estatística de muitos corpos tradicionalmente requer formulações analíticas complexas e simulações numéricas massivas baseadas no método de Monte Carlo. Observáveis macroscópicos como magnetização, energia interna, calor específico e susceptibilidade magnética são utilizados para mapear os limites de fase. 
-
-Este projeto propõe um paradigma alternativo e complementar: a utilização de **Aprendizado Profundo (Deep Learning)** para classificar estados termodinâmicos diretamente a partir de suas configurações microscópicas de spins, sem o cálculo prévio de variáveis macroscópicas. 
-
-A fim de romper com a opacidade metodológica que comumente rotula as redes neurais convolucionais como "caixas-pretas", implementou-se o algoritmo **Grad-CAM (Gradient-weighted Class Activation Mapping)**. Este algoritmo mapeia o fluxo de gradientes nas camadas convolucionais mais profundas, revelando de forma inequívoca quais estruturas geométricas e correlações espaciais de spins (como fronteiras de domínio e clusters fractais) foram determinantes para a decisão da rede em cada fase termodinâmica.
-
----
-
-## 🏛️ 1. Fundamentação Teórica
-
-### 1.1 O Modelo de Ising Bidimensional (2D)
-O Modelo de Ising 2D serve como o laboratório ideal para testar teorias de transição de fase contínua (segunda ordem). Definido sobre uma rede quadrada ideal de tamanho $L \times L$ com condições de contorno periódicas (geometria toroidal), o modelo atribui a cada sítio $i$ uma variável discreta de spin $s_i \in \{-1, +1\}$. 
-
-O Hamiltoniano ($H$) do sistema, considerando apenas interações de primeiros vizinhos na ausência de campo magnético externo, é expresso por:
-
-$$H = -J \sum_{\langle i,j \rangle} s_i s_j$$
-
-Onde $\langle i,j \rangle$ indica o somatório sobre pares de sítios adjacentes e $J$ denota a integral de troca magnética. Adota-se $J = 1.0$ para o comportamento ferromagnético, onde o estado fundamental (energia mínima) é duplamente degenerado e caracterizado por todos os spins paralelos ($s_i = +1$ ou $s_i = -1$ para todo $i$).
-
-A transição de fase ocorre devido à competição contínua entre a minimização da energia interna (que favorece o ordenamento) e a maximização da entropia (introduzida pelas flutuações térmicas). A probabilidade de o sistema ocupar uma configuração de rede $\sigma$ é ponderada pelo peso estatístico de Boltzmann:
-
-$$P(\sigma) = \frac{e^{-\beta H(\sigma)}}{Z}, \quad \beta = \frac{1}{k_B T}, \quad Z = \sum_{\{\sigma\}} e^{-\beta H(\sigma)}$$
-
-Em 1944, Lars Onsager resolveu analiticamente este modelo no limite termodinâmico ($L \rightarrow \infty$), demonstrando a existência de uma singularidade na capacidade térmica à temperatura crítica exata de:
-
-$$T_c = \frac{2J}{k_B \ln(1 + \sqrt{2})} \approx 2,26918 J$$
-
-* **Regime Subcrítico ($T < T_c$):** A quebra espontânea da simetria $Z_2$ induz uma magnetização de longo alcance. O parâmetro de ordem, dado pela magnetização média por sítio $\langle |M| \rangle$, assume valores não nulos.
-* **Regime Supercrítico ($T > T_c$):** O sistema transita para uma fase paramagnética. A flutuação térmica destrói a coerência de fase e $\langle |M| \rangle \rightarrow 0$.
-
-### 1.2 Mecânica Espacial das CNNs aplicadas à Física
-Uma configuração de spins de uma rede $40 \times 40$ pode ser interpretada matematicamente como uma imagem binária de canal único ($1 \times 40 \times 40$). As Redes Neurais Convolucionais (CNNs) realizam operações de filtragem local através de matrizes de pesos aprendíveis (kernels). A operação de convolução bidimensional mapeia correlações espaciais locais:
-
-$$S(i,j) = (I * K)(i,j) = \sum_{m} \sum_{n} I(i-m, j-n) K(m,n)$$
-
-Ao empilhar camadas convolucionais intercaladas com funções de ativação não lineares (ReLU) e subamostragem (*Max Pooling*), a rede deixa de enxergar apenas spins individuais nas camadas iniciais e passa a extrair feições macroscópicas complexas (comprimento de correlação espacial, formas de clusters e interfaces de energia) nas camadas profundas.
-
-### 1.3 Formulação Matemática do Grad-CAM
-Para extrair a assinatura visual da tomada de decisão da rede, o Grad-CAM isola os mapas de ativação de feições $A^k$ gerados pela última camada convolucional do modelo. Primeiro, calcula-se o gradiente da pontuação (*score*) linear da classe de interesse $Y^c$ (antes do operador Softmax) em relação às ativações $A^k$. Esses gradientes sofrem um agrupamento por média global (*Global Average Pooling*) para determinar o peso de importância $\alpha_k^c$:
-
-$$\alpha_k^c = \frac{1}{U \times V} \sum_{u=1}^{U} \sum_{v=1}^{V} \frac{\partial Y^c}{\partial A_{u,v}^k}$$
-
-Onde $U$ e $V$ representam as dimensões espaciais do mapa de feições da última camada convolucional. O mapa de calor final do Grad-CAM ($L_{\text{Grad-CAM}}^c$) é uma combinação linear ponderada de todos os mapas de feições $A^k$, retificada por uma função ReLU:
-
-$$L_{\text{Grad-CAM}}^c = \text{ReLU}\left(\sum_{k} \alpha_k^c A^k\right)$$
-
-O operador ReLU garante que apenas as feições estruturais que aumentam o score da classe alvo $c$ sejam exibidas, filtrando ativações negativas que contribuem para classes concorrentes.
+- [Visão Geral](#-visão-geral)
+- [Fundamentação Teórica](#-fundamentação-teórica)
+  - [Modelo de Ising 2D](#modelo-de-ising-2d)
+  - [Simulação de Monte Carlo — Algoritmo de Metropolis](#simulação-de-monte-carlo--algoritmo-de-metropolis)
+  - [Redes Neurais Convolucionais (CNNs)](#redes-neurais-convolucionais-cnns)
+  - [Interpretabilidade via Grad-CAM](#interpretabilidade-via-grad-cam)
+- [Pipeline do Projeto](#-pipeline-do-projeto)
+- [Metodologia e Implementação](#-metodologia-e-implementação)
+  - [Etapa 1 — Simulação do Modelo de Ising 2D](#etapa-1--simulação-do-modelo-de-ising-2d)
+  - [Etapa 2 — Geração do Dataset](#etapa-2--geração-do-dataset)
+  - [Etapa 3 — Arquitetura CNN em PyTorch](#etapa-3--arquitetura-cnn-em-pytorch)
+  - [Etapa 4 — Treinamento e Avaliação](#etapa-4--treinamento-e-avaliação)
+  - [Etapa 5 — Mapas de Ativação Grad-CAM](#etapa-5--mapas-de-ativação-grad-cam)
+- [Resultados](#-resultados)
+- [Requisitos e Instalação](#-requisitos-e-instalação)
+- [Como Executar](#-como-executar)
+- [Estrutura do Repositório](#-estrutura-do-repositório)
+- [Referências](#-referências)
 
 ---
 
-## 🛠️ 2. Metodologia Computacional e Arquitetura
+## 🔭 Visão Geral
 
-O pipeline do projeto está estruturado em quatro blocos lógicos autônomos e integrados, projetados para máxima eficiência computacional através do uso de tensores tipados (`int8` para spins e `float32` para pesos).
+Este projeto implementa um pipeline completo de **simulação estocástica + aprendizado profundo + inteligência artificial explicável (XAI)**, aplicado à detecção automática de transições de fase no **Modelo de Ising bidimensional**.
 
-### 2.1 Geração Estocástica do Dataset (Algoritmo de Metropolis)
-Para evitar o viés de transientes térmicos (*critical slowing down*), cada ponto de temperatura passa por 300 passos iniciais de Monte Carlo (MCS) para atingir o equilíbrio thermodynamic. 
-As amostras de treino e teste são coletadas de forma controlada a cada 5 MCS para garantir a decorrelação estatística entre as configurações consecutivas salvadas.
+A abordagem integra três frentes:
 
-* **Classe 0 (Fase Ordenada):** 5 temperaturas uniformemente distribuídas no intervalo $T \in [0.5, 2.0]$. Total de 500 matrizes.
-* **Classe 1 (Fase Desordenada):** 5 temperaturas uniformemente distribuídas no intervalo $T \in [2.8, 5.0]$. Total de 500 matrizes.
-* **Amostragem Excluída:** A janela crítica intermediária ($2.0 < T < 2.8$) foi deliberadamente omitida do conjunto de treinamento para garantir limites assintóticos bem definidos para o aprendizado inicial do classificador.
+1. **Simulação de Monte Carlo** (Algoritmo de Metropolis) para geração de configurações microscópicas de spins nas fases ordenada e desordenada.
+2. **Rede Neural Convolucional (CNN)** treinada para classificar as fases termodinâmicas diretamente a partir das imagens de rede de spins, sem cálculo explícito de observáveis físicos.
+3. **Grad-CAM** (*Gradient-weighted Class Activation Mapping*) para decodificar quais regiões espaciais da rede de spins a CNN utiliza em sua tomada de decisão, estabelecendo um vínculo direto entre ativações neurais e física de clusters de spin.
 
-### 2.2 Estrutura de Camadas da CNN
-A tabela a seguir detalha o fluxo tensorial ao longo da arquitetura implementada:
-
-| Camada | Tipo de Operação | Configuração de Parâmetros | Tamanho do Tensor de Saída |
-| :--- | :--- | :--- | :--- |
-| **Entrada** | Tensor de Rede | Normalizado de $[-1, +1] \rightarrow [0, 1]$ | `(Batch, 1, 40, 40)` |
-| **Conv_1** | Convolução 2D | 16 Filtros, Kernel $3\times3$, Padding=1 | `(Batch, 16, 40, 40)` |
-| **ReLU_1** | Ativação | Element-wise ReLU | `(Batch, 16, 40, 40)` |
-| **Pool_1** | Max Pooling | Filtro $2\times2$, Stride=2 | `(Batch, 16, 20, 20)` |
-| **Conv_2** | Convolução 2D | 32 Filtros, Kernel $3\times3$, Padding=1 | `(Batch, 32, 20, 20)` |
-| **ReLU_2** | Ativação | Element-wise ReLU | `(Batch, 32, 20, 20)` |
-| **Pool_2** | Max Pooling | Filtro $2\times2$, Stride=2 | `(Batch, 32, 10, 10)` |
-| **Conv_3** | Convolução 2D | 64 Filtros, Kernel $3\times3$, Padding=1 | `(Batch, 64, 10, 10)` |
-| **ReLU_3** | Ativação | Element-wise ReLU | `(Batch, 64, 10, 10)` |
-| **Pool_3** | Max Pooling | Filtro $2\times2$, Stride=2 | `(Batch, 64, 5, 5)` |
-| **Flatten** | Redução Linear | Redução para Vetor Unidimensional | `(Batch, 1600)` |
-| **Dense_1**| Camada Conectada | Camada Linear Oculta com 128 Neurônios | `(Batch, 128)` |
-| **Dropout**| Regularização | Taxa de Descarte Aleatório de 30% ($p=0.3$) | `(Batch, 128)` |
-| **Dense_2**| Saída (*Logits*) | Mapeamento Linear para as 2 Classes Finais | `(Batch, 2)` |
+O modelo atingiu **100% de acurácia** na classificação das fases, e os mapas Grad-CAM revelaram que os filtros convolucionais aprendem espontaneamente conceitos físicos como **coerência de domínio ferromagnético** e **entropia de interface paramagnética** — sem supervisão explícita sobre esses conceitos.
 
 ---
 
-## 📈 4. Análise de Resultados e Discussão Detalhada
+## 📐 Fundamentação Teórica
 
-Esta seção apresenta a análise quantitativa e qualitativa dos dados obtidos nas três grandes fases do projeto: a termalização estocástica do Modelo de Ising, a convergência estatística da arquitetura convolucional profunda e a decodificação física dos mapas de relevância gerados pelo algoritmo Grad-CAM.
+### Modelo de Ising 2D
 
-### 4.1 Dinâmica de Termalização e Validação do Motor de Monte Carlo
-Antes da amostragem em larga escala para a construção do dataset, realizou-se um teste piloto para validar a integridade física do algoritmo de Metropolis. O sistema, configurado em uma rede quadrada de tamanho $L = 40$ com condições de contorno periódicas, foi inicializado em um estado puramente aleatório (configuração de temperatura infinita, onde $\langle M \rangle \approx 0$) e submetido a uma evolução estocástica sob temperatura subcrítica fixa de $T = 2,2$ (imediatamente abaixo da temperatura de transição de Onsager, $T_c \approx 2,269$).
+O Modelo de Ising 2D consiste em uma rede quadrada L × L de variáveis discretas de spin $s_i \in \{-1, +1\}$. O Hamiltoniano do sistema na ausência de campo externo é:
 
-O comportamento temporal das variáveis macroscópicas do sistema ao longo de 300 Passos Monte Carlo (MCS) está documentado na imagem abaixo:
+$$\mathcal{H} = -J \sum_{\langle i,j \rangle} s_i s_j$$
 
-![Evolução da Termalização e Relaxação Magnética](results/termalizacao_ising.png)  
-*Figura 1: Curvas de relaxação temporal. À esquerda, o decaimento estritamente decrescente da Energia Interna total ($H$). À direita, a evolução correspondente do módulo do parâmetro de ordem, a Magnetização Líquida Absoluta ($|M|$).*
+onde $J > 0$ é a constante de acoplamento ferromagnético e $\langle i,j \rangle$ indica a soma sobre pares de primeiros vizinhos. A probabilidade canônica de cada microestado $\sigma$ é dada pela distribuição de Boltzmann:
 
-**Análise Física:**
-Nos primeiros 50 MCS, observa-se uma transição abrupta: a energia interna decai exponencialmente até atingir um platô de mínima energia livre. Paralelamente, a magnetização absoluta migra de valores nulos para um patamar de estabilidade flutuando em torno de $|M| \approx 0,82$. 
+$$P(\sigma) = \frac{e^{-\beta \mathcal{H}(\sigma)}}{Z}, \quad \beta = \frac{1}{k_B T}$$
 
-Esse comportamento comprova que o algoritmo de amostragem por importância funcionou corretamente, superando o transiente inicial e conduzindo o sistema à quebra espontânea de simetria $Z_2$, caracterizada pelo alinhamento majoritário de domínios ferromagnéticos.
+**Solução exata de Onsager (1944):** O modelo 2D exibe uma transição de fase contínua de segunda ordem na temperatura crítica:
+
+$$T_c = \frac{2J}{k_B \ln(1 + \sqrt{2})} \approx 2{,}269 \; J/k_B$$
+
+| Regime | Temperatura | Comportamento |
+|--------|------------|---------------|
+| **Fase Ordenada** (Ferromagnética) | $T < T_c$ | Quebra espontânea de simetria; magnetização $\langle M \rangle \neq 0$ |
+| **Ponto Crítico** | $T = T_c \approx 2{,}269$ | Flutuações de escala infinita; clusters fractais |
+| **Fase Desordenada** (Paramagnética) | $T > T_c$ | Dominância de flutuações térmicas; $\langle M \rangle = 0$ |
 
 ---
 
-### 4.2 Desempenho e Convergência da Rede Neural Convolucional
-O conjunto de dados, composto por 1.000 configurações de spins normalizadas no intervalo $[0, 1]$ e rotuladas de forma binária (Classe 0: Fase Ordenada; Classe 1: Fase Desordenada), foi dividido na proporção clássica de 80% para treinamento e 20% para teste e validação estatística.
+### Simulação de Monte Carlo — Algoritmo de Metropolis
 
-A arquitetura convolucional profunda `IsingCNN` demonstrou rápida adaptabilidade aos padrões morfológicos das matrizes de spins. A curva de perda (*Cross-Entropy Loss*) ao longo das 10 épocas de otimização pelo algoritmo Adam está representada a seguir:
+Dado o espaço de estados de escala $2^{L \times L}$, a função de partição $Z$ é computacionalmente intratável de forma direta. O **Algoritmo de Metropolis** realiza amostragem de importância no ensemble canônico, obedecendo à condição de balanço detalhado.
 
-![Curva de Aprendizado e Minimização da Perda](results/curvas_treinamento.png)  
-*Figura 2: Curva de perda do modelo demonstrando convergência assintótica suave a partir da 5ª época de treinamento.*
+**Regra de aceitação de Metropolis:**
 
-O modelo alcançou uma **acurácia de 100%** no conjunto de testes independente. Esse desempenho ideal é justificado pela metodologia de amostragem, que excluiu deliberadamente a janela flutuante imediata de criticalidade ($2,0 < T < 2,8$). Ao focar nos limites assintóticos das fases ferromagnética e paramagnética, eliminou-se o ruído gerado pelas flutuações de escala infinita (*finite-size scaling effects*), permitindo à rede mapear com perfeição as assinaturas geométricas de cada regime térmico.
+$$W(s_i \to -s_i) = \min\!\left(1,\; e^{-\beta \Delta E}\right)$$
 
-Abaixo, o relatório estatístico detalhado confirma a estabilidade das métricas:
+onde $\Delta E = E_\text{nova} - E_\text{atual} = 2J \, s_i \sum_{\delta} s_{i+\delta}$ é a variação de energia da inversão local do spin $i$.
 
-```text
-              precision    recall  f1-score   support
+Cada **Passo Monte Carlo (MCS)** consiste em $L^2$ tentativas de inversão, garantindo que cada spin tenha, em média, uma oportunidade de atualização. A termalização é atingida após um número suficiente de MCS, a partir do qual o sistema flutua ao redor do equilíbrio termodinâmico.
 
-    Classe 0       1.00      1.00      1.00       100
-    Classe 1       1.00      1.00      1.00       100
+---
 
-    accuracy                           1.00       200
-   macro avg       1.00      1.00      1.00       200
-weighted avg       1.00      1.00      1.00       200
+### Redes Neurais Convolucionais (CNNs)
+
+CNNs são arquiteturas profundas otimizadas para extração hierárquica de feições espaciais em dados bidimensionais. A operação de convolução discreta é definida por:
+
+$$S(i,j) = (I * K)(i,j) = \sum_m \sum_n I(i-m,\, j-n)\, K(m,n)$$
+
+onde $I$ é a matriz de entrada (rede de spins) e $K$ é o kernel de pesos aprendíveis.
+
+**Componentes da arquitetura utilizada:**
+
+| Componente | Função |
+|-----------|--------|
+| `Conv2d` | Extração de feições locais via kernels 3×3 |
+| `ReLU` | Não-linearidade: $f(x) = \max(0, x)$ |
+| `MaxPool2d` | Redução de dimensionalidade e invariância local |
+| `Dropout` | Regularização para mitigação de overfitting |
+| `Linear` | Classificador final nas representações latentes |
+
+---
+
+### Interpretabilidade via Grad-CAM
+
+O **Grad-CAM** (*Gradient-weighted Class Activation Mapping*) produz mapas de relevância espacial retroprojetando os gradientes de uma classe-alvo até a última camada convolucional.
+
+**Peso de importância da k-ésima feature map para a classe c:**
+
+$$\alpha_k^c = \frac{1}{Z} \sum_u \sum_v \frac{\partial Y^c}{\partial A_{uv}^k}$$
+
+**Mapa de ativação final:**
+
+$$L_{\text{Grad-CAM}}^c = \text{ReLU}\!\left(\sum_k \alpha_k^c \, A^k\right)$$
+
+A aplicação da ReLU garante que o mapa capture exclusivamente as feições com influência positiva direta no score da classe analisada. O resultado é um **mapa térmico** sobreposto à rede de spins original, revelando as regiões espaciais decisivas para a classificação.
+
+---
+
+## 🔄 Pipeline do Projeto
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        PIPELINE COMPLETO                            │
+│                                                                     │
+│  ┌──────────────┐    ┌──────────────┐    ┌────────────────────────┐ │
+│  │  Simulação   │    │  Dataset     │    │   Rede Neural CNN      │ │
+│  │  Metropolis  │───▶│  L=40, 1000  │───▶│   3 blocos conv.       │ │
+│  │  Monte Carlo │    │  amostras    │    │   PyTorch              │ │
+│  └──────────────┘    └──────────────┘    └────────────┬───────────┘ │
+│         │                                             │             │
+│         ▼                                             ▼             │
+│  ┌──────────────┐                        ┌────────────────────────┐ │
+│  │  Observáveis │                        │      Grad-CAM          │ │
+│  │  E(t), M(t)  │                        │  Mapas de Ativação     │ │
+│  │  Termalização│                        │  Interpretabilidade    │ │
+│  └──────────────┘                        └────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🛠 Metodologia e Implementação
+
+### Etapa 1 — Simulação do Modelo de Ising 2D
+
+**Parâmetros físicos e computacionais:**
+
+```python
+L = 40          # Tamanho linear da rede quadrada
+J = 1.0         # Constante de acoplamento ferromagnético
+TC = 2.269      # Temperatura crítica de Onsager
+SEED = 42       # Semente de reprodutibilidade
+```
+
+O sistema é simulado em `T = 2.2` (próximo à criticalidade), partindo de um estado totalmente desordenado (aleatório). A evolução temporal dos observáveis macroscópicos — energia interna $\mathcal{H}$ e magnetização absoluta $|M|$ — é monitorada ao longo de **300 passos de Monte Carlo**.
+
+**Configuração da rede de spins em T = 2.2:**
+
+> *Figura 1 — Snapshot da rede de spins 40×40 após termalização em T = 2.2. Vermelho: spin +1, Azul: spin -1. Observa-se a formação de domínios ferromagnéticos com flutuações características da criticalidade.*
+
+![Modelo de Ising 2D | T=2.2](figures/ising_snapshot_T2.2.png)
+
+**Evolução dos observáveis durante a termalização:**
+
+> *Figura 2 — (Superior) Curva de decaimento da energia interna do sistema ao longo dos 300 passos de Monte Carlo. (Inferior) Crescimento da magnetização absoluta indicando a formação de ordem ferromagnética de longo alcance.*
+
+![Energia e Magnetização vs Passos MC](figures/energia_magnetizacao_mc.png)
+
+**Valores típicos durante a evolução estocástica:**
+
+| Métrica Termodinâmica | Estado Inicial (Passo 0) | Fase Intermediária (Passo 50) | Equilíbrio (Passo 300) |
+|----------------------|--------------------------|-------------------------------|------------------------|
+| Energia Interna $\mathcal{H}$ | ≈ −100 J | ≈ −1.800 J | ≈ −2.500 J |
+| Magnetização Absoluta $|M|$ | ≈ 0,05 | ≈ 0,35 | ≈ 0,82 |
+
+A queda monotônica da energia nos primeiros 100 MCS evidencia a eficiência do algoritmo Metropolis na minimização da energia livre de Helmholtz. O platô de $|M| \approx 0{,}82$ confirma a **quebra espontânea de simetria** e a estabilização de domínios macroscópicos ferromagnéticos.
+
+---
+
+### Etapa 2 — Geração do Dataset
+
+O dataset é composto por **1.000 amostras** de configurações de spins 40×40, geradas a partir de dois subconjuntos de temperatura correspondentes às duas fases termodinâmicas bem separadas da criticalidade:
+
+| Classe | Label | Intervalo de Temperatura | Nº de Pontos | Amostras por Ponto |
+|--------|-------|--------------------------|-------------|-------------------|
+| **Fase Ordenada** (Ferromagnética) | 0 | $T \in [0{,}5;\, 2{,}0]$ | 5 | 100 |
+| **Fase Desordenada** (Paramagnética) | 1 | $T \in [2{,}8;\, 5{,}0]$ | 5 | 100 |
+
+> ⚠️ **Nota metodológica:** A janela crítica $2{,}0 < T < 2{,}8$ foi **intencionalmente excluída** do dataset de treinamento, eliminando o ruído gerado pelas flutuações de escala infinita e pelo *finite-size scaling effect*. Isso permite que a rede mapeie as características geométricas extremas de cada fase de forma limpa.
+
+**Protocolo de amostragem:**
+- **Termalização:** 300 MCS iniciais descartados (burn-in)
+- **Decorrelação:** amostras salvas a cada 5 MCS para contornar o tempo de autocorrelação crítica
+- **Formato final do tensor:** `(1000, 1, 40, 40)` — 1000 amostras, 1 canal, 40×40 pixels
+
+**Exemplos de configurações por temperatura e classe:**
+
+> *Figura 3 — Mosaico de 10 configurações de spins amostradas. Linhas superiores: fases desordenadas (alta temperatura, mistura caótica de domínios vermelhos e azuis). Linhas inferiores: fases ordenadas (baixa temperatura, dominância de uma cor indicando alinhamento ferromagnético).*
+
+![Amostras do Dataset](figures/dataset_amostras.png)
+
+**Distribuição balanceada das classes:**
+
+> *Figura 4 — Histograma de distribuição das classes no dataset. 500 amostras da fase ordenada (Classe 0) e 500 amostras da fase desordenada (Classe 1), garantindo balanceamento perfeito para o treinamento.*
+
+![Distribuição das Classes](figures/distribuicao_classes.png)
+
+---
+
+### Etapa 3 — Arquitetura CNN em PyTorch
+
+As configurações de spin são normalizadas do intervalo $[-1, +1]$ para $[0, 1]$ via transformação linear $x \mapsto (x+1)/2$ e redimensionadas para o formato de entrada `(1, 40, 40)`.
+
+**Arquitetura `IsingCNN`:**
+
+```python
+class IsingCNN(nn.Module):
+    def __init__(self):
+        super(IsingCNN, self).__init__()
+        self.features = nn.Sequential(
+            nn.Conv2d(1, 16, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),          # 40×40 → 20×20
+
+            nn.Conv2d(16, 32, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2),          # 20×20 → 10×10
+
+            nn.Conv2d(32, 64, kernel_size=3, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(2)           # 10×10 → 5×5
+        )
+        self.classifier = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(64 * 5 * 5, 128),
+            nn.ReLU(),
+            nn.Dropout(0.3),
+            nn.Linear(128, 2)
+        )
+```
+
+**Fluxo dimensional pelo backbone convolucional:**
+
+```
+Entrada:  (B, 1,  40, 40)
+Block 1:  (B, 16, 20, 20)   ← Conv(1→16) + ReLU + MaxPool2d
+Block 2:  (B, 32, 10, 10)   ← Conv(16→32) + ReLU + MaxPool2d
+Block 3:  (B, 64, 5,  5 )   ← Conv(32→64) + ReLU + MaxPool2d
+Flatten:  (B, 1600)
+FC-128:   (B, 128)           ← Linear + ReLU + Dropout(0.3)
+Saída:    (B, 2)             ← Linear (logits das 2 classes)
+```
+
+**Hiperparâmetros de treinamento:**
+
+| Hiperparâmetro | Valor |
+|---------------|-------|
+| Otimizador | Adam |
+| Taxa de aprendizado | 0.001 |
+| Função de perda | CrossEntropyLoss |
+| Batch size | 64 |
+| Épocas | 10 |
+| Split treino/teste | 80% / 20% |
+| Dropout | 0.3 |
+
+---
+
+### Etapa 4 — Treinamento e Avaliação
+
+**Evolução do treinamento por época:**
+
+| Época | Loss | Acurácia |
+|-------|------|----------|
+| 1/10 | 0.5473 | 72,00% |
+| 2/10 | 0.0722 | 99,88% |
+| 3/10 | 0.0001 | 100,00% |
+| 4–10/10 | 0.0000 | **100,00%** |
+
+A convergência rápida a partir da 2ª época reflete a alta separabilidade topológica das duas fases no espaço de feições convolucionais.
+
+**Curva de Loss de Treinamento:**
+
+> *Figura 5 — Decaimento da função de perda (Cross-Entropy Loss) ao longo das 10 épocas de treinamento. A queda abrupta entre as épocas 1 e 3 indica que a rede aprendeu os padrões discriminativos fundamentais nas primeiras iterações.*
+
+![Loss de Treinamento](figures/loss_treinamento.png)
+
+**Curva de Acurácia de Treinamento:**
+
+> *Figura 6 — Evolução da acurácia de treinamento por época. A rede atinge 100% já na 3ª época e mantém essa performance até o final do treinamento.*
+
+![Accuracy de Treinamento](figures/accuracy_treinamento.png)
+
+**Matriz de Confusão no conjunto de teste (200 amostras):**
+
+> *Figura 7 — Matriz de confusão no conjunto de teste independente. Todos os 100 exemplos da fase ordenada e todos os 100 da fase desordenada foram classificados corretamente, resultando em zero erros.*
+
+![Matriz de Confusão](figures/matriz_confusao.png)
+
+**Relatório estatístico de classificação:**
+
+| Fase Alvo | Precisão | Recall | F1-Score | Suporte |
+|-----------|----------|--------|----------|---------|
+| Classe 0 — Ordenada (Ferromagnética) | 1,00 | 1,00 | 1,00 | 100 |
+| Classe 1 — Desordenada (Paramagnética) | 1,00 | 1,00 | 1,00 | 100 |
+| **Média Global (Macro Average)** | **1,00** | **1,00** | **1,00** | **200** |
+
+**Predições sobre exemplos individuais do conjunto de teste:**
+
+> *Figura 8 — Grade de 10 configurações de spins do conjunto de teste com seus rótulos reais (`Real`) e predições da CNN (`Pred`). Todas as classificações estão corretas.*
+
+![Predições no Conjunto de Teste](figures/predicoes_teste.png)
+
+---
+
+### Etapa 5 — Mapas de Ativação Grad-CAM
+
+Para cada amostra analisada, são exibidas três representações:
+
+1. **Lattice original** — configuração de spins 40×40 (vermelho: +1, azul: −1)
+2. **Mapa Grad-CAM** — mapa térmico de relevância espacial (vermelho: alta ativação, azul: baixa ativação)
+3. **Sobreposição** — fusão do mapa Grad-CAM sobre a rede de spins para localização visual das regiões decisivas
+
+**Mapas Grad-CAM por classe:**
+
+> *Figura 9 — Resultados Grad-CAM para 4 amostras (1 ordenada + 3 desordenadas). **Linha 1 (Real=0, Ordenada):** o mapa de ativação concentra-se no interior do bulk ferromagnético homogêneo, ignorando as bordas periódicas — a rede reconhece a uniformidade de alinhamento como assinatura da fase de baixa temperatura. **Linhas 2–4 (Real=1, Desordenadas):** a atenção distribui-se de forma difusa e fragmentada, com picos nas regiões de alta frequência de transição entre spins vizinhos — a rede detecta a entropia geométrica local característica da fase paramagnética.*
+
+![Mapas Grad-CAM](figures/gradcam_resultados.png)
+
+**Interpretação física dos mapas Grad-CAM:**
+
+| Fase | Padrão de Ativação Grad-CAM | Interpretação Física |
+|------|----------------------------|----------------------|
+| **Ordenada** ($T < T_c$) | Alta ativação no bulk ferromagnético; baixa nas bordas | A CNN reconhece a **coerência espacial de spins** como assinatura da ordem de longo alcance |
+| **Desordenada** ($T > T_c$) | Ativação difusa e granular, com picos nas interfaces de domínio | A CNN detecta a **alta densidade de fronteiras de domínio** e a **entropia geométrica local** |
+
+Este resultado demonstra que a CNN **aprendeu espontaneamente** conceitos físicos reais — sem que esses conceitos tenham sido explicitamente fornecidos como rótulos durante o treinamento.
+
+---
+
+## 📊 Resultados
+
+### Resumo Consolidado
+
+| Métrica | Resultado |
+|---------|-----------|
+| Acurácia no conjunto de teste | **100,00%** |
+| F1-Score (macro average) | **1,00** |
+| Épocas até convergência total | **3** |
+| Total de amostras de treino | 800 |
+| Total de amostras de teste | 200 |
+| Arquitetura | CNN 3 blocos conv. + FC |
+| Parâmetros treináveis | ~210k |
+
+### Conclusões Físicas
+
+1. **Validação da separabilidade de fases:** A CNN aprendeu a discriminar perfeitamente as fases termodinâmicas do Modelo de Ising 2D a partir de imagens brutas de spins, sem cálculo explícito de observáveis como magnetização ou susceptibilidade.
+
+2. **Física emergente nos filtros convolucionais:** Os mapas Grad-CAM revelaram que os filtros da última camada convolucional sintonizam sua resposta com:
+   - **Fase ordenada:** Coerência e homogeneidade espacial dos domínios ferromagnéticos.
+   - **Fase desordenada:** Densidade e fragmentação das fronteiras de domínio.
+
+3. **XAI como ponte física:** A metodologia Grad-CAM estabelece um vínculo verificável entre representações latentes neurais e conceitos físicos concretos, desmistificando a natureza de "caixa-preta" dos modelos de aprendizado profundo.
+
+4. **Perspectivas futuras:** Esta abordagem é diretamente extensível a sistemas mais complexos como *spin glasses*, modelos frustrados e sistemas quânticos, onde os parâmetros de ordem não são conhecidos a priori.
+
+---
+
+## 💻 Requisitos e Instalação
+
+### Dependências
+
+```bash
+Python >= 3.9
+torch >= 2.0.0
+numpy >= 1.24.0
+matplotlib >= 3.7.0
+scikit-learn >= 1.2.0
+tqdm >= 4.65.0
+```
+
+### Instalação
+
+```bash
+# Clone o repositório
+git clone https://github.com/<seu-usuario>/ising-cnn-gradcam.git
+cd ising-cnn-gradcam
+
+# Crie e ative um ambiente virtual (recomendado)
+python -m venv venv
+source venv/bin/activate        # Linux/macOS
+# venv\Scripts\activate         # Windows
+
+# Instale as dependências
+pip install -r requirements.txt
+```
+
+### Suporte a GPU (opcional)
+
+O código detecta automaticamente a disponibilidade de CUDA:
+
+```python
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+```
+
+Para treinamento em GPU, instale a versão CUDA do PyTorch conforme as instruções em [pytorch.org](https://pytorch.org).
+
+---
+
+## ▶️ Como Executar
+
+### Execução completa (pipeline integrado)
+
+```bash
+python Modelo_ising_grad.py
+```
+
+O script executa sequencialmente as 4 etapas:
+
+```
+============================================================
+ETAPA 1 — SIMULAÇÃO DO MODELO DE ISING
+============================================================
+[Gera snapshot em T=2.2, plota energia e magnetização vs MCS]
+
+============================================================
+ETAPA 2 — GERAÇÃO DO DATASET
+============================================================
+[Amostra 1000 configurações nas fases ordenada e desordenada]
+Dataset final: (1000, 1, 40, 40)
+
+============================================================
+ETAPA 3 — CNN
+============================================================
+Epoch 1/10  | Loss=0.5473 | Acc=72.00%
+Epoch 2/10  | Loss=0.0722 | Acc=99.88%
+...
+Epoch 10/10 | Loss=0.0000 | Acc=100.00%
+
+============================================================
+ETAPA 4 — GRAD-CAM
+============================================================
+[Gera mapas de ativação para amostras selecionadas]
+```
+
+Todos os gráficos são salvos automaticamente na pasta `results/`.
+
+### Execução via Jupyter Notebook
+
+```bash
+jupyter notebook Modelo_ising_grad.ipynb
+```
+
+---
+
+## 📁 Estrutura do Repositório
+
+```
+ising-cnn-gradcam/
+│
+├── Modelo_ising_grad.py          # Script principal (pipeline completo)
+├── Modelo_ising_grad.ipynb       # Notebook Jupyter com outputs
+│
+├── requirements.txt              # Dependências Python
+├── README.md                     # Este arquivo
+│
+├── results/                      # Saídas geradas automaticamente
+│   ├── ising_snapshot_T2.2.png   # Snapshot da rede em T=2.2
+│   ├── energia_magnetizacao.png  # Curvas de termalização
+│   ├── dataset_amostras.png      # Mosaico de amostras do dataset
+│   ├── distribuicao_classes.png  # Histograma de classes
+│   ├── loss_treinamento.png      # Curva de loss por época
+│   ├── accuracy_treinamento.png  # Curva de acurácia por época
+│   ├── matriz_confusao.png       # Matriz de confusão no teste
+│   ├── predicoes_teste.png       # Grade de predições individuais
+│   └── gradcam_resultados.png    # Mapas de ativação Grad-CAM
+│
+└── figures/                      # Figuras para o README
+    └── ...
+```
+
+---
+
+## 📚 Referências
+
+```bibtex
+@article{ising1925beitrag,
+  author  = {Ising, Ernst},
+  title   = {Beitrag zur Theorie des Ferromagnetismus},
+  journal = {Zeitschrift für Physik},
+  volume  = {31},
+  number  = {1},
+  pages   = {253--258},
+  year    = {1925}
+}
+
+@article{onsager1944crystal,
+  author  = {Onsager, Lars},
+  title   = {Crystal statistics. {I}. A two-dimensional {Ising} model with an order-disorder transition},
+  journal = {Physical Review},
+  volume  = {65},
+  number  = {3--4},
+  pages   = {117},
+  year    = {1944}
+}
+
+@inproceedings{selvaraju2017grad,
+  author    = {Selvaraju, Ramprasaath R. and others},
+  title     = {{Grad-CAM}: Visual explanations from deep networks via gradient-based localization},
+  booktitle = {Proceedings of the IEEE International Conference on Computer Vision (ICCV)},
+  pages     = {618--626},
+  year      = {2017}
+}
+
+@article{paszke2019pytorch,
+  author  = {Paszke, Adam and others},
+  title   = {{PyTorch}: An imperative style, high-performance deep learning library},
+  journal = {Advances in Neural Information Processing Systems},
+  volume  = {32},
+  pages   = {8026--8037},
+  year    = {2019}
+}
+```
+
+---
+
+## 📄 Licença
+
+Este projeto foi desenvolvido como trabalho acadêmico de dissertação de mestrado. Para uso ou adaptação, cite o trabalho original.
+
+---
+
+<div align="center">
+
+**André Luiz** — UNESP Ribeirão Preto, 2026  
+*Programa de Pós-Graduação em Física e Computação Científica*
+
+</div>
