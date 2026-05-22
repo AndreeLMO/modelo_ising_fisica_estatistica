@@ -481,7 +481,6 @@ ising-cnn-gradcam/
 
 ## 📚 Referências
 
-```bibtex
 @article{ising1925beitrag,
   author  = {Ising, Ernst},
   title   = {Beitrag zur Theorie des Ferromagnetismus},
