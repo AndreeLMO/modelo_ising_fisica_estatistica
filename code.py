@@ -1,7 +1,3 @@
-# ============================================================
-# PROJETO COMPLETO
-# MODELO DE ISING 2D + CNN + GRAD-CAM
-# ============================================================
 # Projeto:
 # Detecção de Transições de Fase usando Deep Learning
 #
@@ -775,6 +771,7 @@ print("PROJETO FINALIZADO")
 print("================================================")
 
 print("""
+
 Etapas implementadas:
 
 1. Modelo de Ising 2D
@@ -785,9 +782,6 @@ Etapas implementadas:
 6. Classificação de fases
 7. Grad-CAM
 8. IA interpretável
-
-A CNN aprendeu padrões físicos relacionados
-à transição de fase do Modelo de Ising.
 
 Temperatura crítica aproximada:
 Tc ≈ 2.269
