@@ -519,8 +519,4 @@ ising-cnn-gradcam/
 }
 ```
 
-<div align="center">
-
 **André Luiz Magalhães de Oliveira - Físico Médico**
-
-</div>
