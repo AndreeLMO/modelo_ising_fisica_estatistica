@@ -1,6 +1,6 @@
 # Detecção de Transições de Fase no Modelo de Ising 2D com CNN e Grad-CAM
 
-> **Autor:** André Luiz
+> **Autor:** André Luiz Magalhães de Oliveira
 
 ---
 
@@ -157,13 +157,13 @@ O sistema é simulado em `T = 2.2` (próximo à criticalidade), partindo de um e
 
 > *Figura 1 — Snapshot da rede de spins 40×40 após termalização em T = 2.2. Vermelho: spin +1, Azul: spin -1. Observa-se a formação de domínios ferromagnéticos com flutuações características da criticalidade.*
 
-![Modelo de Ising 2D | T=2.2](figures/ising_snapshot_T2.2.png)
+![Modelo de Ising 2D | T=2.2](figures/01_ising_snapshot.png)
 
 **Evolução dos observáveis durante a termalização:**
 
 > *Figura 2 — (Superior) Curva de decaimento da energia interna do sistema ao longo dos 300 passos de Monte Carlo. (Inferior) Crescimento da magnetização absoluta indicando a formação de ordem ferromagnética de longo alcance.*
 
-![Energia e Magnetização vs Passos MC](figures/energia_magnetizacao_mc.png)
+![Energia e Magnetização vs Passos MC](figures/02_curvas_termalizacao.png)
 
 **Valores típicos durante a evolução estocástica:**
 
@@ -192,17 +192,11 @@ O dataset é composto por **1.000 amostras** de configurações de spins 40×40,
 - **Decorrelação:** amostras salvas a cada 5 MCS para contornar o tempo de autocorrelação crítica
 - **Formato final do tensor:** `(1000, 1, 40, 40)` — 1000 amostras, 1 canal, 40×40 pixels
 
-**Exemplos de configurações por temperatura e classe:**
+**Exemplos de configurações e distribuição das classes:**
 
-> *Figura 3 — Mosaico de 10 configurações de spins amostradas. Linhas superiores: fases desordenadas (alta temperatura, mistura caótica de domínios vermelhos e azuis). Linhas inferiores: fases ordenadas (baixa temperatura, dominância de uma cor indicando alinhamento ferromagnético).*
+> *Figura 3 — (Superior) Mosaico de 10 configurações de spins amostradas: fases desordenadas à esquerda (T alto, mistura caótica de domínios) e fases ordenadas à direita (T baixo, dominância ferromagnética). (Inferior) Histograma de distribuição — 500 amostras da fase ordenada (Classe 0) e 500 da fase desordenada (Classe 1), balanceamento perfeito.*
 
-![Amostras do Dataset](figures/dataset_amostras.png)
-
-**Distribuição balanceada das classes:**
-
-> *Figura 4 — Histograma de distribuição das classes no dataset. 500 amostras da fase ordenada (Classe 0) e 500 amostras da fase desordenada (Classe 1), garantindo balanceamento perfeito para o treinamento.*
-
-![Distribuição das Classes](figures/distribuicao_classes.png)
+![Amostras do Dataset e Distribuição das Classes](figures/03a_amostras_mosaic.png)
 
 ---
 
@@ -277,23 +271,17 @@ Saída:    (B, 2)             ← Linear (logits das 2 classes)
 
 A convergência rápida a partir da 2ª época reflete a alta separabilidade topológica das duas fases no espaço de feições convolucionais.
 
-**Curva de Loss de Treinamento:**
+**Matriz de Confusão, Relatório de Classificação e Curva de Loss:**
 
-> *Figura 5 — Decaimento da função de perda (Cross-Entropy Loss) ao longo das 10 épocas de treinamento. A queda abrupta entre as épocas 1 e 3 indica que a rede aprendeu os padrões discriminativos fundamentais nas primeiras iterações.*
+> *Figura 5 — (Superior) Matriz de confusão no conjunto de teste: 100/100 amostras ordenadas e 100/100 desordenadas classificadas corretamente, zero erros. (Meio) Relatório completo de classificação com precisão, recall e F1-score = 1,00 para ambas as classes. (Inferior) Decaimento da Cross-Entropy Loss ao longo das 10 épocas — queda abrupta entre épocas 1 e 3.*
 
-![Loss de Treinamento](figures/loss_treinamento.png)
+![Matriz de Confusão, Classification Report e Loss](figures/04_matriz_confusao_loss.png)
 
-**Curva de Acurácia de Treinamento:**
+**Curva de Acurácia e Predições no Conjunto de Teste:**
 
-> *Figura 6 — Evolução da acurácia de treinamento por época. A rede atinge 100% já na 3ª época e mantém essa performance até o final do treinamento.*
+> *Figura 6 — (Superior) Evolução da acurácia por época — a rede atinge 100% já na 3ª época. (Inferior) Grade de 10 configurações de spins do conjunto de teste com rótulos reais (`Real`) e predições da CNN (`Pred`). Todas as classificações estão corretas.*
 
-![Accuracy de Treinamento](figures/accuracy_treinamento.png)
-
-**Matriz de Confusão no conjunto de teste (200 amostras):**
-
-> *Figura 7 — Matriz de confusão no conjunto de teste independente. Todos os 100 exemplos da fase ordenada e todos os 100 da fase desordenada foram classificados corretamente, resultando em zero erros.*
-
-![Matriz de Confusão](figures/matriz_confusao.png)
+![Accuracy de Treinamento e Predições](figures/05_accuracy_predicoes.png)
 
 **Relatório estatístico de classificação:**
 
@@ -302,12 +290,6 @@ A convergência rápida a partir da 2ª época reflete a alta separabilidade top
 | Classe 0 — Ordenada (Ferromagnética) | 1,00 | 1,00 | 1,00 | 100 |
 | Classe 1 — Desordenada (Paramagnética) | 1,00 | 1,00 | 1,00 | 100 |
 | **Média Global (Macro Average)** | **1,00** | **1,00** | **1,00** | **200** |
-
-**Predições sobre exemplos individuais do conjunto de teste:**
-
-> *Figura 8 — Grade de 10 configurações de spins do conjunto de teste com seus rótulos reais (`Real`) e predições da CNN (`Pred`). Todas as classificações estão corretas.*
-
-![Predições no Conjunto de Teste](figures/predicoes_teste.png)
 
 ---
 
@@ -323,7 +305,7 @@ Para cada amostra analisada, são exibidas três representações:
 
 > *Figura 9 — Resultados Grad-CAM para 4 amostras (1 ordenada + 3 desordenadas). **Linha 1 (Real=0, Ordenada):** o mapa de ativação concentra-se no interior do bulk ferromagnético homogêneo, ignorando as bordas periódicas — a rede reconhece a uniformidade de alinhamento como assinatura da fase de baixa temperatura. **Linhas 2–4 (Real=1, Desordenadas):** a atenção distribui-se de forma difusa e fragmentada, com picos nas regiões de alta frequência de transição entre spins vizinhos — a rede detecta a entropia geométrica local característica da fase paramagnética.*
 
-![Mapas Grad-CAM](figures/gradcam_resultados.png)
+![Mapas Grad-CAM](figures/06_gradcam_resultados.png)
 
 **Interpretação física dos mapas Grad-CAM:**
 
@@ -733,10 +715,9 @@ As referências estão organizadas por tema. O BibTeX completo de cada entrada e
 
 ---
 
----
 
 <div align="center">
 
-**André Luiz**
+**André Luiz**   
 
 </div>
