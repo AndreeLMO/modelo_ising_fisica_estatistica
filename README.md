@@ -1,6 +1,6 @@
-# 🧲 Detecção de Transições de Fase no Modelo de Ising 2D com CNN e Grad-CAM
- 
-> **Autor:** André Luiz Magalhães de Oliveira
+# Detecção de Transições de Fase no Modelo de Ising 2D com CNN e Grad-CAM
+
+> **Autor:** André Luiz
 
 ---
 
@@ -481,14 +481,89 @@ ising-cnn-gradcam/
 
 ## 📚 Referências
 
+As referências estão organizadas por tema. O BibTeX completo de cada entrada encontra-se ao final desta seção.
+
+---
+
+### Física Estatística e Modelo de Ising
+
+**[1]** ISING, E. **Beitrag zur Theorie des Ferromagnetismus**. *Zeitschrift für Physik*, v. 31, n. 1, p. 253–258, 1925.
+> Artigo original de Ernst Ising propondo o modelo unidimensional de spins interagentes. Embora o resultado 1D não apresente transição de fase, o modelo tornou-se o paradigma central da física estatística computacional.
+
+**[2]** ONSAGER, L. **Crystal statistics. I. A two-dimensional Ising model with an order-disorder transition**. *Physical Review*, v. 65, n. 3–4, p. 117–149, 1944.
+> Solução analítica exata do modelo de Ising 2D em campo nulo. Onsager demonstrou a existência de transição de fase de segunda ordem na temperatura crítica $T_c = 2J / [k_B \ln(1+\sqrt{2})] \approx 2{,}269\,J/k_B$, um dos resultados mais importantes da física teórica do século XX.
+
+**[3]** METROPOLIS, N. et al. **Equation of state calculations by fast computing machines**. *The Journal of Chemical Physics*, v. 21, n. 6, p. 1087–1092, 1953.
+> Artigo fundacional do Algoritmo de Metropolis. Introduziu a amostragem de importância no ensemble canônico via cadeias de Markov, viabilizando simulações de equilíbrio termodinâmico em sistemas de muitos corpos.
+
+**[4]** NEWMAN, M. E. J.; BARKEMA, G. T. **Monte Carlo Methods in Statistical Physics**. Oxford: Oxford University Press, 1999.
+> Referência textbook completa sobre métodos de Monte Carlo em física estatística. Cobre o algoritmo de Metropolis, algoritmos de cluster (Wolff, Swendsen-Wang), análise de autocorrelação e *finite-size scaling*.
+
+**[5]** HUANG, K. **Statistical Mechanics**. 2. ed. New York: Wiley, 1987.
+> Texto clássico de mecânica estatística. Apresenta a derivação do ensemble canônico, funções de partição, teoria de Landau para transições de fase e o tratamento formal dos fenômenos críticos e expoentes críticos universais.
+
+---
+
+### Machine Learning Aplicado à Física
+
+**[6]** CARRASQUILLA, J.; MELKO, R. G. **Machine learning phases of matter**. *Nature Physics*, v. 13, n. 5, p. 431–434, 2017.
+> Trabalho pioneiro que demonstrou que redes neurais simples podem aprender a distinguir fases termodinâmicas ordenadas e desordenadas do Modelo de Ising diretamente a partir de configurações de spins, sem supervisão explícita sobre os parâmetros de ordem.
+
+**[7]** MEHTA, P. et al. **A high-bias, low-variance introduction to Machine Learning for physicists**. *Physics Reports*, v. 810, p. 1–124, 2019.
+> Revisão extensa e acessível sobre aprendizado de máquina escrita por e para físicos. Cobre redes neurais, aprendizado não supervisionado, máquinas de Boltzmann restritas e sua relação com mecânica estatística e teoria de campo.
+
+**[8]** TANAKA, A.; TOMIYA, A. **Detection of phase transition via convolutional neural networks**. *Journal of the Physical Society of Japan*, v. 86, n. 6, p. 063001, 2017.
+> Aplica CNNs ao Modelo de Ising 2D para detecção de transições de fase, investigando a influência da arquitetura e dos dados de treinamento na localização da temperatura crítica. Contexto direto para o presente trabalho.
+
+**[9]** REM, B. S. et al. **Identifying quantum phase transitions using artificial neural networks on experimental data**. *Nature Physics*, v. 15, p. 917–920, 2019.
+> Extensão da metodologia de ML para detecção de transições de fase em dados experimentais quânticos reais, demonstrando a robustez da abordagem além de simulações computacionais.
+
+---
+
+### Redes Neurais Convolucionais e Aprendizado Profundo
+
+**[10]** LECUN, Y.; BENGIO, Y.; HINTON, G. **Deep learning**. *Nature*, v. 521, n. 7553, p. 436–444, 2015.
+> Artigo de revisão seminal sobre aprendizado profundo, cobrindo a motivação das CNNs, redes recorrentes e representações hierárquicas de feições. Ponto de entrada essencial para qualquer trabalho com deep learning.
+
+**[11]** LECUN, Y. et al. **Gradient-based learning applied to document recognition**. *Proceedings of the IEEE*, v. 86, n. 11, p. 2278–2324, 1998.
+> Artigo original apresentando a arquitetura LeNet e os fundamentos das redes neurais convolucionais: convolução, pooling, compartilhamento de pesos e invariância por translação. Base teórica da arquitetura `IsingCNN` utilizada neste trabalho.
+
+**[12]** KINGMA, D. P.; BA, J. **Adam: A method for stochastic optimization**. In: *International Conference on Learning Representations (ICLR)*, 2015.
+> Apresenta o otimizador Adam, utilizado no treinamento da CNN deste projeto. Combina as vantagens do RMSProp e do momento com taxas de aprendizado adaptativas por parâmetro.
+
+**[13]** SRIVASTAVA, N. et al. **Dropout: A simple way to prevent neural networks from overfitting**. *Journal of Machine Learning Research*, v. 15, n. 1, p. 1929–1958, 2014.
+> Artigo original do Dropout, técnica de regularização utilizada na camada totalmente conectada da `IsingCNN` (taxa 0,3). Demonstra que o desligamento aleatório de neurônios equivale a um ensemble implícito de redes menores.
+
+**[14]** PASZKE, A. et al. **PyTorch: An imperative style, high-performance deep learning library**. *Advances in Neural Information Processing Systems*, v. 32, p. 8026–8037, 2019.
+> Artigo descrevendo a biblioteca PyTorch, framework utilizado para construção, treinamento e inferência da CNN neste projeto. Destaca o design orientado à execução dinâmica de grafos computacionais (*define-by-run*).
+
+---
+
+### Interpretabilidade e XAI (Explainable AI)
+
+**[15]** SELVARAJU, R. R. et al. **Grad-CAM: Visual explanations from deep networks via gradient-based localization**. In: *Proceedings of the IEEE International Conference on Computer Vision (ICCV)*, p. 618–626, 2017.
+> Artigo original do Grad-CAM. Propõe o uso dos gradientes da classe-alvo propagados até a última camada convolucional para gerar mapas de ativação espacialmente localizados, sem modificações na arquitetura da rede.
+
+**[16]** ZEILER, M. D.; FERGUS, R. **Visualizing and understanding convolutional networks**. In: *European Conference on Computer Vision (ECCV)*, p. 818–833, 2014.
+> Trabalho fundacional em interpretabilidade de CNNs. Introduz a técnica de *deconvolution* para visualizar quais padrões de entrada maximizam a ativação de filtros convolucionais específicos, motivando toda a linha de pesquisa em XAI para visão computacional.
+
+**[17]** SAMEK, W.; MÜLLER, K.-R. **Towards explainable artificial intelligence**. In: SAMEK, W. et al. (eds.). *Explainable AI: Interpreting, Explaining and Visualizing Deep Learning*. Lecture Notes in Computer Science, v. 11700. Springer, 2019. p. 5–22.
+> Capítulo introdutório de uma das principais referências em XAI. Sistematiza os métodos de explicabilidade em deep learning: baseados em gradiente (Grad-CAM, Saliency Maps), perturbação (LIME, SHAP) e propagação de relevância (LRP).
+
+---
+
+### BibTeX Completo
+
+```bibtex
 @article{ising1925beitrag,
   author  = {Ising, Ernst},
-  title   = {Beitrag zur Theorie des Ferromagnetismus},
-  journal = {Zeitschrift für Physik},
+  title   = {Beitrag zur {Theorie} des {Ferromagnetismus}},
+  journal = {Zeitschrift f{\"u}r Physik},
   volume  = {31},
   number  = {1},
   pages   = {253--258},
-  year    = {1925}
+  year    = {1925},
+  doi     = {10.1007/BF02980577}
 }
 
 @article{onsager1944crystal,
@@ -497,16 +572,122 @@ ising-cnn-gradcam/
   journal = {Physical Review},
   volume  = {65},
   number  = {3--4},
-  pages   = {117},
-  year    = {1944}
+  pages   = {117--149},
+  year    = {1944},
+  doi     = {10.1103/PhysRev.65.117}
 }
 
-@inproceedings{selvaraju2017grad,
-  author    = {Selvaraju, Ramprasaath R. and others},
-  title     = {{Grad-CAM}: Visual explanations from deep networks via gradient-based localization},
-  booktitle = {Proceedings of the IEEE International Conference on Computer Vision (ICCV)},
-  pages     = {618--626},
-  year      = {2017}
+@article{metropolis1953equation,
+  author  = {Metropolis, Nicholas and Rosenbluth, Arianna W. and Rosenbluth, Marshall N. and Teller, Augusta H. and Teller, Edward},
+  title   = {Equation of state calculations by fast computing machines},
+  journal = {The Journal of Chemical Physics},
+  volume  = {21},
+  number  = {6},
+  pages   = {1087--1092},
+  year    = {1953},
+  doi     = {10.1063/1.1699114}
+}
+
+@book{newman1999monte,
+  author    = {Newman, M. E. J. and Barkema, G. T.},
+  title     = {Monte {Carlo} Methods in Statistical Physics},
+  publisher = {Oxford University Press},
+  address   = {Oxford},
+  year      = {1999},
+  isbn      = {978-0198517979}
+}
+
+@book{huang1987statistical,
+  author    = {Huang, Kerson},
+  title     = {Statistical Mechanics},
+  edition   = {2},
+  publisher = {Wiley},
+  address   = {New York},
+  year      = {1987},
+  isbn      = {978-0471815181}
+}
+
+@article{carrasquilla2017machine,
+  author  = {Carrasquilla, Juan and Melko, Roger G.},
+  title   = {Machine learning phases of matter},
+  journal = {Nature Physics},
+  volume  = {13},
+  number  = {5},
+  pages   = {431--434},
+  year    = {2017},
+  doi     = {10.1038/nphys4035}
+}
+
+@article{mehta2019high,
+  author  = {Mehta, Pankaj and others},
+  title   = {A high-bias, low-variance introduction to {Machine Learning} for physicists},
+  journal = {Physics Reports},
+  volume  = {810},
+  pages   = {1--124},
+  year    = {2019},
+  doi     = {10.1016/j.physrep.2019.03.001}
+}
+
+@article{tanaka2017detection,
+  author  = {Tanaka, Akinori and Tomiya, Akio},
+  title   = {Detection of phase transition via convolutional neural networks},
+  journal = {Journal of the Physical Society of Japan},
+  volume  = {86},
+  number  = {6},
+  pages   = {063001},
+  year    = {2017},
+  doi     = {10.7566/JPSJ.86.063001}
+}
+
+@article{rem2019identifying,
+  author  = {Rem, Bernhard S. and others},
+  title   = {Identifying quantum phase transitions using artificial neural networks on experimental data},
+  journal = {Nature Physics},
+  volume  = {15},
+  pages   = {917--920},
+  year    = {2019},
+  doi     = {10.1038/s41567-019-0554-0}
+}
+
+@article{lecun2015deep,
+  author  = {LeCun, Yann and Bengio, Yoshua and Hinton, Geoffrey},
+  title   = {Deep learning},
+  journal = {Nature},
+  volume  = {521},
+  number  = {7553},
+  pages   = {436--444},
+  year    = {2015},
+  doi     = {10.1038/nature14539}
+}
+
+@article{lecun1998gradient,
+  author  = {LeCun, Yann and Bottou, L{\'e}on and Bengio, Yoshua and Haffner, Patrick},
+  title   = {Gradient-based learning applied to document recognition},
+  journal = {Proceedings of the IEEE},
+  volume  = {86},
+  number  = {11},
+  pages   = {2278--2324},
+  year    = {1998},
+  doi     = {10.1109/5.726791}
+}
+
+@inproceedings{kingma2015adam,
+  author    = {Kingma, Diederik P. and Ba, Jimmy},
+  title     = {Adam: A method for stochastic optimization},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2015},
+  url       = {https://arxiv.org/abs/1412.6980}
+}
+
+@article{srivastava2014dropout,
+  author  = {Srivastava, Nitish and Hinton, Geoffrey and Krizhevsky, Alex and Sutskever, Ilya and Salakhutdinov, Ruslan},
+  title   = {Dropout: A simple way to prevent neural networks from overfitting},
+  journal = {Journal of Machine Learning Research},
+  volume  = {15},
+  number  = {1},
+  pages   = {1929--1958},
+  year    = {2014},
+  url     = {http://jmlr.org/papers/v15/srivastava14a.html}
 }
 
 @article{paszke2019pytorch,
@@ -515,6 +696,47 @@ ising-cnn-gradcam/
   journal = {Advances in Neural Information Processing Systems},
   volume  = {32},
   pages   = {8026--8037},
-  year    = {2019}
+  year    = {2019},
+  url     = {https://arxiv.org/abs/1912.01703}
+}
+
+@inproceedings{selvaraju2017grad,
+  author    = {Selvaraju, Ramprasaath R. and Cogswell, Michael and Das, Abhishek and Vedantam, Ramakrishna and Parikh, Devi and Batra, Dhruv},
+  title     = {{Grad-CAM}: Visual explanations from deep networks via gradient-based localization},
+  booktitle = {Proceedings of the IEEE International Conference on Computer Vision (ICCV)},
+  pages     = {618--626},
+  year      = {2017},
+  doi       = {10.1109/ICCV.2017.74}
+}
+
+@inproceedings{zeiler2014visualizing,
+  author    = {Zeiler, Matthew D. and Fergus, Rob},
+  title     = {Visualizing and understanding convolutional networks},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  pages     = {818--833},
+  year      = {2014},
+  doi       = {10.1007/978-3-319-10590-1_53}
+}
+
+@incollection{samek2019towards,
+  author    = {Samek, Wojciech and M{\"u}ller, Klaus-Robert},
+  title     = {Towards explainable artificial intelligence},
+  booktitle = {Explainable {AI}: Interpreting, Explaining and Visualizing Deep Learning},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {11700},
+  publisher = {Springer},
+  year      = {2019},
+  pages     = {5--22},
+  doi       = {10.1007/978-3-030-28954-6_1}
 }
 ```
+
+---
+
+---
+
+<div align="center">
+
+**André Luiz**
+
+</div>
