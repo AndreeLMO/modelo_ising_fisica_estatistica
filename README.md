@@ -519,14 +519,6 @@ ising-cnn-gradcam/
 }
 ```
 
----
-
-## 📄 Licença
-
-Este projeto foi desenvolvido como trabalho acadêmico de dissertação de mestrado. Para uso ou adaptação, cite o trabalho original.
-
----
-
 <div align="center">
 
 **André Luiz Magalhães de Oliveira - Físico Médico**
