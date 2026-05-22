@@ -93,3 +93,43 @@ A tabela a seguir detalha o fluxo tensorial ao longo da arquitetura implementada
 
 ---
 
+## 📈 4. Análise de Resultados e Discussão Detalhada
+
+Esta seção apresenta a análise quantitativa e qualitativa dos dados obtidos nas três grandes fases do projeto: a termalização estocástica do Modelo de Ising, a convergência estatística da arquitetura convolucional profunda e a decodificação física dos mapas de relevância gerados pelo algoritmo Grad-CAM.
+
+### 4.1 Dinâmica de Termalização e Validação do Motor de Monte Carlo
+Antes da amostragem em larga escala para a construção do dataset, realizou-se um teste piloto para validar a integridade física do algoritmo de Metropolis. O sistema, configurado em uma rede quadrada de tamanho $L = 40$ com condições de contorno periódicas, foi inicializado em um estado puramente aleatório (configuração de temperatura infinita, onde $\langle M \rangle \approx 0$) e submetido a uma evolução estocástica sob temperatura subcrítica fixa de $T = 2,2$ (imediatamente abaixo da temperatura de transição de Onsager, $T_c \approx 2,269$).
+
+O comportamento temporal das variáveis macroscópicas do sistema ao longo de 300 Passos Monte Carlo (MCS) está documentado na imagem abaixo:
+
+![Evolução da Termalização e Relaxação Magnética](results/termalizacao_ising.png)  
+*Figura 1: Curvas de relaxação temporal. À esquerda, o decaimento estritamente decrescente da Energia Interna total ($H$). À direita, a evolução correspondente do módulo do parâmetro de ordem, a Magnetização Líquida Absoluta ($|M|$).*
+
+**Análise Física:**
+Nos primeiros 50 MCS, observa-se uma transição abrupta: a energia interna decai exponencialmente até atingir um platô de mínima energia livre. Paralelamente, a magnetização absoluta migra de valores nulos para um patamar de estabilidade flutuando em torno de $|M| \approx 0,82$. 
+
+Esse comportamento comprova que o algoritmo de amostragem por importância funcionou corretamente, superando o transiente inicial e conduzindo o sistema à quebra espontânea de simetria $Z_2$, caracterizada pelo alinhamento majoritário de domínios ferromagnéticos.
+
+---
+
+### 4.2 Desempenho e Convergência da Rede Neural Convolucional
+O conjunto de dados, composto por 1.000 configurações de spins normalizadas no intervalo $[0, 1]$ e rotuladas de forma binária (Classe 0: Fase Ordenada; Classe 1: Fase Desordenada), foi dividido na proporção clássica de 80% para treinamento e 20% para teste e validação estatística.
+
+A arquitetura convolucional profunda `IsingCNN` demonstrou rápida adaptabilidade aos padrões morfológicos das matrizes de spins. A curva de perda (*Cross-Entropy Loss*) ao longo das 10 épocas de otimização pelo algoritmo Adam está representada a seguir:
+
+![Curva de Aprendizado e Minimização da Perda](results/curvas_treinamento.png)  
+*Figura 2: Curva de perda do modelo demonstrando convergência assintótica suave a partir da 5ª época de treinamento.*
+
+O modelo alcançou uma **acurácia de 100%** no conjunto de testes independente. Esse desempenho ideal é justificado pela metodologia de amostragem, que excluiu deliberadamente a janela flutuante imediata de criticalidade ($2,0 < T < 2,8$). Ao focar nos limites assintóticos das fases ferromagnética e paramagnética, eliminou-se o ruído gerado pelas flutuações de escala infinita (*finite-size scaling effects*), permitindo à rede mapear com perfeição as assinaturas geométricas de cada regime térmico.
+
+Abaixo, o relatório estatístico detalhado confirma a estabilidade das métricas:
+
+```text
+              precision    recall  f1-score   support
+
+    Classe 0       1.00      1.00      1.00       100
+    Classe 1       1.00      1.00      1.00       100
+
+    accuracy                           1.00       200
+   macro avg       1.00      1.00      1.00       200
+weighted avg       1.00      1.00      1.00       200
