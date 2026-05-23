@@ -463,8 +463,6 @@ ising-cnn-gradcam/
 
 ## 📚 Referências
 
----
-
 ### Física Estatística e Modelo de Ising
 
 **[1]** ISING, E. **Beitrag zur Theorie des Ferromagnetismus**. *Zeitschrift für Physik*, v. 31, n. 1, p. 253–258, 1925.
@@ -535,6 +533,6 @@ ising-cnn-gradcam/
 
 <div align="center">
 
-**André Luiz**   
+**André Luiz Magalhães de Oliveira - Físico Médico**   
 
 </div>
